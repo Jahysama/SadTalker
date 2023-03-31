@@ -47,9 +47,6 @@ def main(args):
     #init model
     print(path_of_net_recon_model)
     preprocess_model = CropAndExtract(path_of_lm_croper, path_of_net_recon_model, dir_of_BFM_fitting, device)
-
-    print(audio2pose_checkpoint)
-    print(audio2exp_checkpoint)
     audio_to_coeff = Audio2Coeff(audio2pose_checkpoint, audio2pose_yaml_path, 
                                 audio2exp_checkpoint, audio2exp_yaml_path, 
                                 wav2lip_checkpoint, device)

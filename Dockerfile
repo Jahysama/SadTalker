@@ -42,4 +42,6 @@ RUN pip install -r requirements.txt
 # Download models using the provided script
 RUN chmod +x scripts/download_models.sh && scripts/download_models.sh
 
-ENTRYPOINT ["python3", "inference.py"]
+EXPOSE 8000
+
+ENTRYPOINT python -m uvicorn server:app --host 0.0.0.0 --port 8000
