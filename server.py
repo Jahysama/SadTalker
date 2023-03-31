@@ -47,12 +47,46 @@ def talking_face_generation():
     from time import strftime
     import os, sys, time
     from argparse import ArgumentParser
-    from inference import args
     from src.utils.preprocess import CropAndExtract
     from src.test_audio2coeff import Audio2Coeff
     from src.facerender.animate import AnimateFromCoeff
     from src.generate_batch import get_data
     from src.generate_facerender_batch import get_facerender_data
+
+
+    parser = ArgumentParser()
+    parser.add_argument("--driven_audio", default='./examples/driven_audio/RD_Radio31_000.wav', help="path to driven audio")
+    parser.add_argument("--source_image", default='./examples/source_image/people_0.png', help="path to source image")
+    parser.add_argument("--ref_video", default=None, help="path to reference video")
+    parser.add_argument("--checkpoint_dir", default='./checkpoints', help="path to output")
+    parser.add_argument("--result_dir", default='./results', help="path to output")
+    parser.add_argument("--pose_style", type=int, default=0,  help="input pose style from [0, 46)")
+    parser.add_argument("--batch_size", type=int, default=2,  help="the batch size of facerender")
+    parser.add_argument("--expression_scale", type=float, default=1.,  help="the batch size of facerender")
+    parser.add_argument('--camera_yaw', nargs='+', type=int, default=[0], help="the camera yaw degree")
+    parser.add_argument('--camera_pitch', nargs='+', type=int, default=[0], help="the camera pitch degree")
+    parser.add_argument('--camera_roll', nargs='+', type=int, default=[0], help="the camera roll degree")
+    parser.add_argument('--enhancer',  type=str, default=None, help="Face enhancer, [GFPGAN]")
+    parser.add_argument("--cpu", dest="cpu", action="store_true")
+    parser.add_argument("--face3dvis", action="store_true", help="generate 3d face and 3d landmarks")
+    parser.add_argument("--still", action="store_true")
+    parser.add_argument("--preprocess", default='crop', choices=['crop', 'resize'] )
+
+    # net structure and parameters
+    parser.add_argument('--net_recon', type=str, default='resnet50', choices=['resnet18', 'resnet34', 'resnet50'], help='useless')
+    parser.add_argument('--init_path', type=str, default=None, help='Useless')
+    parser.add_argument('--use_last_fc',default=False, help='zero initialize the last fc')
+    parser.add_argument('--bfm_folder', type=str, default='./checkpoints/BFM_Fitting/')
+    parser.add_argument('--bfm_model', type=str, default='BFM_model_front.mat', help='bfm model')
+
+    # default renderer parameters
+    parser.add_argument('--focal', type=float, default=1015.)
+    parser.add_argument('--center', type=float, default=112.)
+    parser.add_argument('--camera_d', type=float, default=10.)
+    parser.add_argument('--z_near', type=float, default=5.)
+    parser.add_argument('--z_far', type=float, default=15.)
+
+    args = parser.parse_args()
 
     current_code_path = sys.argv[0]
     current_root_path = os.path.split(current_code_path)[0]
