@@ -71,7 +71,7 @@ class MeshRenderer(nn.Module):
         # vertex_ndc = vertex @ ndc_proj.t()
         if self.rasterizer is None:
             self.rasterizer = MeshRasterizer()
-            print("create rasterizer on device cuda:%d"%device.index)
+            #print("create rasterizer on device cuda:%d"%device.index)
         
         # ranges = None
         # if isinstance(tri, List) or len(tri.shape) == 3:
