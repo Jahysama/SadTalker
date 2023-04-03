@@ -56,7 +56,7 @@ def talking_face_generation():
 
 
     parser = ArgumentParser()
-    parser.add_argument("--driven_audio", default='./examples/driven_audio/RD_Radio31_000.wav', help="path to driven audio")
+    #parser.add_argument("--driven_audio", default='./examples/driven_audio/RD_Radio31_000.wav', help="path to driven audio")
     parser.add_argument("--source_image", default='./examples/source_image/people_0.png', help="path to source image")
     parser.add_argument("--ref_video", default=None, help="path to reference video")
     parser.add_argument("--checkpoint_dir", default='./checkpoints', help="path to output")
