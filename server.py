@@ -94,7 +94,7 @@ def talking_face_generation():
     device = 'cpu'
 
     os.environ['TORCH_HOME'] = os.path.join(current_root_path, './checkpoints')
-
+    logger.info(f"Loading weights...")
     path_of_lm_croper = os.path.join(current_root_path, './checkpoints', 'shape_predictor_68_face_landmarks.dat')
     path_of_net_recon_model = os.path.join(current_root_path, './checkpoints', 'epoch_20.pth')
     dir_of_BFM_fitting = os.path.join(current_root_path, './checkpoints', 'BFM_Fitting')
@@ -119,7 +119,7 @@ def talking_face_generation():
                                             facerender_yaml_path, device)
 
     face_dict = {}
-
+    logger.info(f"Creating face masks...")
     for avatar in os.listdir(avatar_picrutes_path):
         save_dir = os.path.join('result', avatar)
         first_frame_dir = os.path.join(save_dir, 'first_frame_dir')
@@ -134,7 +134,9 @@ def talking_face_generation():
             print("Can't get the coeffs of the input")
             return
 
+
     def _talking_face(request: CompleteRequest):
+        logger.info(f"Creating video...")
         batch = get_data(first_coeff_path, request.audio, device)
         coeff_path = audio_to_coeff.generate(batch, save_dir, 0)
         from src.face3d.visualize import gen_composed_video
@@ -147,6 +149,7 @@ def talking_face_generation():
 
         animate_from_coeff.generate(data, save_dir, enhancer=None, original_size=original_size)
         video_name = data['video_name']
+        logger.info(f"Video generated!")
         return 'video generated!'
 
     yield _talking_face
