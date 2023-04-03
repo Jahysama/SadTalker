@@ -26,7 +26,7 @@ ADD . /app/SadTalker
 
 # Change the working directory to SadTalker
 WORKDIR /app/SadTalker
-
+VOLUME /app/SadTalker/result
 # Install PyTorch with CPU support
 RUN pip install torch==1.13.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 RUN pip install "git+https://github.com/facebookresearch/pytorch3d.git"

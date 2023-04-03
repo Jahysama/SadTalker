@@ -59,7 +59,7 @@ def talking_face_generation():
         source_image = './examples/source_image/people_0.png'
         ref_video = None
         checkpoint_dir = 'checkpoints'
-        result_dir = './results'
+        result_dir = './result'
         pose_style = 0
         batch_size = 2
         expression_scale = 1
