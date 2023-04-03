@@ -156,8 +156,10 @@ def talking_face_generation():
 
 
 def worker():
+        logger.info(f"Got request!")
         with talking_face_generation() as generate:
                 while True:
+                        logger.info(f"Processing requests...")
                         response_queue = None
                         try:
                                 (request, response_queue) = request_queue.get()
