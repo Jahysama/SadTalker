@@ -55,7 +55,8 @@ class Embedding(object):
     def __init__(self, prefix, data_shape, batch_size=1):
         image_size = (112, 112)
         self.image_size = image_size
-        weight = torch.load(prefix)
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        weight = torch.load(prefix, map_location=torch.device(device))
         resnet = get_model(args.network, dropout=0, fp16=False).cuda()
         resnet.load_state_dict(weight)
         model = torch.nn.DataParallel(resnet)

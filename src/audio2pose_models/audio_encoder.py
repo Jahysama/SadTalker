@@ -42,7 +42,8 @@ class AudioEncoder(nn.Module):
             Conv2d(512, 512, kernel_size=1, stride=1, padding=0),)
 
         #### load the pre-trained audio_encoder\
-        wav2lip_state_dict = torch.load(wav2lip_checkpoint)['state_dict']
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        wav2lip_state_dict = torch.load(wav2lip_checkpoint, map_location=torch.device(device))['state_dict']
         state_dict = self.audio_encoder.state_dict()
 
         for k,v in wav2lip_state_dict.items():
