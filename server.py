@@ -85,7 +85,7 @@ def talking_face_generation():
     args = Args()
 
     current_code_path = '/app/Sadtalker'
-    current_root_path = os.path.split(current_code_path)[0]
+    current_root_path = current_code_path
     device = 'cpu'
 
     os.environ['TORCH_HOME'] = os.path.join(current_root_path, './checkpoints')
