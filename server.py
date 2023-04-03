@@ -132,7 +132,7 @@ def talking_face_generation():
 
     def _talking_face(request: CompleteRequest):
         logger.info(f"Creating video...")
-        batch = get_data(first_coeff_path, request.audio, device)
+        batch = get_data(first_coeff_path, request.audio, device, refvideo_coeff_path=None)
         coeff_path = audio_to_coeff.generate(batch, save_dir, 0)
         from src.face3d.visualize import gen_composed_video
         gen_composed_video(args, device, first_coeff_path, coeff_path, request.audio, os.path.join(save_dir, '3dface.mp4'))
