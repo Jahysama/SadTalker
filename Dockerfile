@@ -27,8 +27,8 @@ ADD . /app/SadTalker
 # Change the working directory to SadTalker
 WORKDIR /app/SadTalker
 
-# Install PyTorch with CUDA 11.3 support
-RUN pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 torchaudio==0.12.1 --extra-index-url https://download.pytorch.org/whl/cu113
+# Install PyTorch with CPU support
+RUN pip install install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
 # Install dlib
 RUN pip install dlib-bin
