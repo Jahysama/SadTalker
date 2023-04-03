@@ -28,8 +28,8 @@ ADD . /app/SadTalker
 WORKDIR /app/SadTalker
 
 # Install PyTorch with CPU support
-RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-
+RUN pip install torch==1.13.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+RUN pip install "git+https://github.com/facebookresearch/pytorch3d.git"
 # Install dlib
 RUN pip install dlib-bin
 

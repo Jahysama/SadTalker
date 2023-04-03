@@ -18,4 +18,5 @@ facexlib==0.2.5
 gradio
 uvicorn
 loguru
-pytorch3d
+fvcore
+iopath
