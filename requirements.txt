@@ -20,3 +20,4 @@ uvicorn
 loguru
 fvcore
 iopath
+trimesh
