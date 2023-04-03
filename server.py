@@ -84,7 +84,7 @@ def talking_face_generation():
 
     args = Args()
 
-    current_code_path = sys.argv[0]
+    current_code_path = '/app/Sadtalker'
     current_root_path = os.path.split(current_code_path)[0]
     device = 'cpu'
 
