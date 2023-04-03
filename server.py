@@ -58,7 +58,7 @@ def talking_face_generation():
         driven_audio = './examples/driven_audio/RD_Radio31_000.wav'
         source_image = './examples/source_image/people_0.png'
         ref_video = None
-        checkpoint_dir = './checkpoints'
+        checkpoint_dir = 'checkpoints'
         result_dir = './results'
         pose_style = 0
         batch_size = 2
@@ -74,7 +74,7 @@ def talking_face_generation():
         net_recon = 'resnet50'
         init_path = None
         use_last_fc = False
-        bfm_folder = './checkpoints/BFM_Fitting/'
+        bfm_folder = 'checkpoints/BFM_Fitting/'
         bfm_model = 'BFM_model_front.mat'
         focal = 1015.
         center = 112.
@@ -88,21 +88,21 @@ def talking_face_generation():
     current_root_path = current_code_path
     device = 'cpu'
 
-    os.environ['TORCH_HOME'] = os.path.join(current_root_path, './checkpoints')
+    os.environ['TORCH_HOME'] = os.path.join(current_root_path, 'checkpoints')
     logger.info(f"Loading weights...")
-    path_of_lm_croper = os.path.join(current_root_path, './checkpoints', 'shape_predictor_68_face_landmarks.dat')
-    path_of_net_recon_model = os.path.join(current_root_path, './checkpoints', 'epoch_20.pth')
-    dir_of_BFM_fitting = os.path.join(current_root_path, './checkpoints', 'BFM_Fitting')
-    wav2lip_checkpoint = os.path.join(current_root_path, './checkpoints', 'wav2lip.pth')
+    path_of_lm_croper = os.path.join(current_root_path, 'checkpoints', 'shape_predictor_68_face_landmarks.dat')
+    path_of_net_recon_model = os.path.join(current_root_path, 'checkpoints', 'epoch_20.pth')
+    dir_of_BFM_fitting = os.path.join(current_root_path, 'checkpoints', 'BFM_Fitting')
+    wav2lip_checkpoint = os.path.join(current_root_path, 'checkpoints', 'wav2lip.pth')
 
-    audio2pose_checkpoint = os.path.join(current_root_path, './checkpoints', 'auido2pose_00140-model.pth')
+    audio2pose_checkpoint = os.path.join(current_root_path, 'checkpoints', 'auido2pose_00140-model.pth')
     audio2pose_yaml_path = os.path.join(current_root_path, 'src', 'config', 'auido2pose.yaml')
 
-    audio2exp_checkpoint = os.path.join(current_root_path, './checkpoints', 'auido2exp_00300-model.pth')
+    audio2exp_checkpoint = os.path.join(current_root_path, 'checkpoints', 'auido2exp_00300-model.pth')
     audio2exp_yaml_path = os.path.join(current_root_path, 'src', 'config', 'auido2exp.yaml')
 
-    free_view_checkpoint = os.path.join(current_root_path, './checkpoints', 'facevid2vid_00189-model.pth.tar')
-    mapping_checkpoint = os.path.join(current_root_path, './checkpoints', 'mapping_00229-model.pth.tar')
+    free_view_checkpoint = os.path.join(current_root_path, 'checkpoints', 'facevid2vid_00189-model.pth.tar')
+    mapping_checkpoint = os.path.join(current_root_path, 'checkpoints', 'mapping_00229-model.pth.tar')
     facerender_yaml_path = os.path.join(current_root_path, 'src', 'config', 'facerender.yaml')
     avatar_picrutes_path = os.path.join(current_code_path, 'examples', 'source_image')
 
