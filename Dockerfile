@@ -28,7 +28,7 @@ ADD . /app/SadTalker
 WORKDIR /app/SadTalker
 
 # Install PyTorch with CPU support
-RUN pip install install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
 # Install dlib
 RUN pip install dlib-bin
