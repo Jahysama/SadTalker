@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Clone the SadTalker repository
-RUN git clone https://github.com/Jahysama/SadTalker.git
+ADD . /app/SadTalker
 
 # Change the working directory to SadTalker
 WORKDIR /app/SadTalker

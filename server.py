@@ -17,6 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import os
 import uvicorn
 
+
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 app = FastAPI()
