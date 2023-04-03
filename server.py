@@ -116,7 +116,7 @@ def talking_face_generation():
     face_dict = {}
     logger.info(f"Creating face masks...")
     for avatar in os.listdir(avatar_picrutes_path):
-        save_dir = os.path.join('result', avatar)
+        save_dir = os.path.join(current_root_path, 'result', avatar.split('.')[0])
         first_frame_dir = os.path.join(save_dir, 'first_frame_dir')
         os.makedirs(first_frame_dir, exist_ok=True)
         first_coeff_path, crop_pic_path, original_size = preprocess_model.generate(os.path.join(avatar_picrutes_path, avatar),
@@ -132,13 +132,13 @@ def talking_face_generation():
 
     def _talking_face(request: CompleteRequest):
         logger.info(f"Creating video...")
-        batch = get_data(first_coeff_path, request.audio, device, refvideo_coeff_path=None)
-        coeff_path = audio_to_coeff.generate(batch, save_dir, 0)
-        from src.face3d.visualize import gen_composed_video
-        gen_composed_video(args, device, first_coeff_path, coeff_path, request.audio, os.path.join(save_dir, '3dface.mp4'))
-
         face_params = face_dict[request.image]
-        data = get_facerender_data(face_params['coeff_path'], face_params['crop_pic_path'], face_params['first_coeff_path'],
+        batch = get_data(first_coeff_path, request.audio, device, refvideo_coeff_path=None)
+        coeff_path = audio_to_coeff.generate(batch, os.path.join(current_root_path, 'result', request.image.split('.')[0]), 0)
+        from src.face3d.visualize import gen_composed_video
+        gen_composed_video(args, device, face_params['first_coeff_path'], coeff_path, request.audio, os.path.join(save_dir, '3dface.mp4'))
+
+        data = get_facerender_data(coeff_path, face_params['crop_pic_path'], face_params['first_coeff_path'],
                                 request.audio, batch_size=2, camera_yaw_list=[0], camera_pitch_list=[0], camera_roll_list=[0],
                                expression_scale=1., still_mode=True)
 
