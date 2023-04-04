@@ -142,7 +142,7 @@ def talking_face_generation():
                                 request.audio, batch_size=2, camera_yaw_list=[0], camera_pitch_list=[0], camera_roll_list=[0],
                                expression_scale=1., still_mode=True)
 
-        animate_from_coeff.generate(data, save_dir, enhancer=None, original_size=original_size)
+        animate_from_coeff.generate(data, os.path.join(current_root_path, 'result', request.image.split('.')[0]), enhancer=None, original_size=original_size)
         video_name = data['video_name']
         logger.info(f"Video generated!")
         return 'video generated!'
