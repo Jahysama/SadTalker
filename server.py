@@ -3,19 +3,21 @@ import threading
 import queue
 import time
 from loguru import logger
-from pathlib import Path
 import contextlib
 
 import pydantic
 
-import cv2
-import numpy
-
+from pathlib import Path
 from fastapi import FastAPI
+from fastapi import Request, Response
+from fastapi import Header
+from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 
 import os
 import uvicorn
+
+
 
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
@@ -23,6 +25,10 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 app = FastAPI()
 
 origins = ["*"]
+
+templates = Jinja2Templates(directory="templates")
+CHUNK_SIZE = 1024*1024
+video_path = Path("video.mp4")
 
 app.add_middleware(
         CORSMiddleware,
@@ -167,6 +173,27 @@ def worker():
                                 logger.exception(f"Got exception, will continue")
                                 if response_queue is not None:
                                         response_queue.put("")
+
+
+@app.get("/")
+async def read_root(request: Request):
+    return templates.TemplateResponse("index.htm", context={"request": request})
+
+
+@app.get("/video")
+async def video_endpoint(range: str = Header(None)):
+    start, end = range.replace("bytes=", "").split("-")
+    start = int(start)
+    end = int(end) if end else start + CHUNK_SIZE
+    with open(video_path, "rb") as video:
+        video.seek(start)
+        data = video.read(end - start)
+        filesize = str(video_path.stat().st_size)
+        headers = {
+            'Content-Range': f'bytes {str(start)}-{str(end)}/{filesize}',
+            'Accept-Ranges': 'bytes'
+        }
+        return Response(data, status_code=206, headers=headers, media_type="video/mp4")
 
 
 class CompleteRequest(pydantic.BaseModel):
