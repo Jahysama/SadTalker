@@ -180,7 +180,7 @@ def worker():
 
 @app.get("/")
 async def read_root(request: Request):
-    return templates.TemplateResponse("/app/Sadtalker/index.html", context={"request": request})
+    return templates.TemplateResponse("/app/SadTalker/index.html", context={"request": request})
 
 
 @app.get("/video")
