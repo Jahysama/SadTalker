@@ -28,7 +28,7 @@ origins = ["*"]
 
 templates = Jinja2Templates(directory="templates")
 CHUNK_SIZE = 1024*1024
-video_path = Path("video.mp4")
+video_path = Path("/app/SadTalker/result/happy/happy##bus_chinese.mp4")
 
 app.add_middleware(
         CORSMiddleware,
@@ -50,6 +50,7 @@ request_queue = queue.Queue(maxsize=settings.queue_size)
 
 @contextlib.contextmanager
 def talking_face_generation():
+
     import torch
     from time import strftime
     import os, sys, time
@@ -137,6 +138,7 @@ def talking_face_generation():
 
 
     def _talking_face(request: CompleteRequest):
+        global video_path
         logger.info(f"Creating video...")
         face_params = face_dict[request.image]
         batch = get_data(first_coeff_path, request.audio, device, refvideo_coeff_path=None)
@@ -151,6 +153,7 @@ def talking_face_generation():
         animate_from_coeff.generate(data, os.path.join(current_root_path, 'result', request.image.split('.')[0]), enhancer=None, original_size=original_size)
         video_name = data['video_name']
         logger.info(f"Video generated!")
+        video_path = Path(f"/app/SadTalker/result/{request.image.split('.')[0]}/{video_name}.mp4")
         return 'video generated!'
 
     yield _talking_face
@@ -182,6 +185,7 @@ async def read_root(request: Request):
 
 @app.get("/video")
 async def video_endpoint(range: str = Header(None)):
+    global video_path
     start, end = range.replace("bytes=", "").split("-")
     start = int(start)
     end = int(end) if end else start + CHUNK_SIZE
