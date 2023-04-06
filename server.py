@@ -13,6 +13,9 @@ from fastapi import Request, Response
 from fastapi import Header
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import FileResponse
+import uuid
 
 import os
 import uvicorn
@@ -46,6 +49,16 @@ class Settings(pydantic.BaseSettings):
 settings = Settings()
 
 request_queue = queue.Queue(maxsize=settings.queue_size)
+
+
+@contextlib.contextmanager
+def voice_generation():
+    import gTTS
+
+    def _get_voice(request: CompleteRequest):
+
+        tts = gTTS(text=request.text, lang=request.lang, slow=False)
+        tts.save("app/SadTalker/examples/driven_audio/voice.wav")
 
 
 @contextlib.contextmanager
@@ -122,26 +135,34 @@ def talking_face_generation():
 
     face_dict = {}
     logger.info(f"Creating face masks...")
-    for avatar in os.listdir(avatar_picrutes_path):
-        save_dir = os.path.join(current_root_path, 'result', avatar.split('.')[0])
-        first_frame_dir = os.path.join(save_dir, 'first_frame_dir')
-        os.makedirs(first_frame_dir, exist_ok=True)
-        first_coeff_path, crop_pic_path, original_size = preprocess_model.generate(os.path.join(avatar_picrutes_path, avatar),
-                                                                                   first_frame_dir, 'crop')
-        face_dict[avatar] = {'first_coeff_path': first_coeff_path,
-                             'crop_pic_path': crop_pic_path,
-                             'original_size': original_size}
 
-        if first_coeff_path is None:
-            print("Can't get the coeffs of the input")
-            return
+    def generate_3d_face_shapes():
+        for avatar in os.listdir(avatar_picrutes_path):
+            save_dir = os.path.join(current_root_path, 'result', avatar.split('.')[0])
+            if not os.path.exists(save_dir):
+                continue
+            first_frame_dir = os.path.join(save_dir, 'first_frame_dir')
+            os.makedirs(first_frame_dir, exist_ok=True)
+            first_coeff_path, crop_pic_path, original_size = preprocess_model.generate(
+                os.path.join(avatar_picrutes_path, avatar),
+                first_frame_dir, 'crop')
+            face_dict[avatar] = {'first_coeff_path': first_coeff_path,
+                                 'crop_pic_path': crop_pic_path,
+                                 'original_size': original_size}
 
+            if first_coeff_path is None:
+                print("Can't get the coeffs of the input")
+                return
+
+    generate_3d_face_shapes()
 
     def _talking_face(request: CompleteRequest):
+
         global video_path
+        generate_3d_face_shapes()
         logger.info(f"Creating video...")
         face_params = face_dict[request.image]
-        batch = get_data(first_coeff_path, request.audio, device, refvideo_coeff_path=None)
+        batch = get_data(face_params['first_coeff_path'], request.audio, device, refvideo_coeff_path=None)
         coeff_path = audio_to_coeff.generate(batch, os.path.join(current_root_path, 'result', request.image.split('.')[0]), 0)
         from src.face3d.visualize import gen_composed_video
         gen_composed_video(args, device, face_params['first_coeff_path'], coeff_path, request.audio, os.path.join(os.path.join(current_root_path, 'result', request.image.split('.')[0]), '3dface.mp4'))
@@ -200,9 +221,22 @@ async def video_endpoint(range: str = Header(None)):
         return Response(data, status_code=206, headers=headers, media_type="video/mp4")
 
 
+@app.post("/upload_new_face")
+async def create_upload_file(file: UploadFile = File(...)):
+    file.filename = f"{uuid.uuid4()}.png"
+    contents = await file.read()
+
+    with open(f"/app/SadTalker/examples/source_image/{file.filename}", "wb") as f:
+        f.write(contents)
+
+    return {"filename": file.filename}
+
+
 class CompleteRequest(pydantic.BaseModel):
     audio: str
     image: str
+    text: str
+    lang: str
 
 
 def _enqueue(request: CompleteRequest):

@@ -22,3 +22,4 @@ fvcore
 iopath
 trimesh
 fastapi
+gTTS
