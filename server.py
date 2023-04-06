@@ -221,7 +221,7 @@ async def video_endpoint(range: str = Header(None)):
         return Response(data, status_code=206, headers=headers, media_type="video/mp4")
 
 
-@app.get("/upload_new_face")
+@app.post("/upload_new_face")
 async def create_upload_file(file: UploadFile = File(...)):
     file.filename = f"{uuid.uuid4()}.png"
     contents = await file.read()
