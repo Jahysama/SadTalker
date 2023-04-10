@@ -53,7 +53,7 @@ request_queue = queue.Queue(maxsize=settings.queue_size)
 
 @contextlib.contextmanager
 def voice_generation():
-    import gTTS
+    from gtts import gTTS
 
     def _get_voice(request: CompleteRequest):
 
