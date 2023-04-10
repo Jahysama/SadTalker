@@ -170,10 +170,10 @@ def talking_face_generation():
         gen_composed_video(args, device, face_params['first_coeff_path'], coeff_path, audio, os.path.join(os.path.join(current_root_path, 'result', request.image.split('.')[0]), '3dface.mp4'))
 
         data = get_facerender_data(coeff_path, face_params['crop_pic_path'], face_params['first_coeff_path'],
-                                audio, batch_size=2, camera_yaw_list=[0], camera_pitch_list=[0], camera_roll_list=[0],
-                               expression_scale=1., still_mode=True)
+                                audio, batch_size=2, input_yaw_list=[0], input_pitch_list=[0], input_roll_list=[0],
+                               expression_scale=1., still_mode=True, preprocess='full')
 
-        animate_from_coeff.generate(data, os.path.join(current_root_path, 'result', request.image.split('.')[0]), enhancer=None, original_size=original_size)
+        animate_from_coeff.generate(data, os.path.join(current_root_path, 'result', request.image.split('.')[0]), enhancer=None, background_enhancer=None, preprocess='full')
         video_name = data['video_name']
         logger.info(f"Video generated!")
         video_path = Path(f"/app/SadTalker/result/{request.image.split('.')[0]}/{video_name}.mp4")
