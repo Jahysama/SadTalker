@@ -145,12 +145,11 @@ def talking_face_generation():
             first_frame_dir = os.path.join(save_dir, 'first_frame_dir')
             os.makedirs(first_frame_dir, exist_ok=True)
             logger.info(f"Avatar: {avatar}; PATH: {os.path.join(avatar_picrutes_path, avatar)}")
-            first_coeff_path, crop_pic_path, original_size,  crop_info = preprocess_model.generate(
+            first_coeff_path, crop_pic_path, crop_info = preprocess_model.generate(
                 os.path.join(avatar_picrutes_path, avatar),
                 first_frame_dir, 'crop')
             face_dict[avatar] = {'first_coeff_path': first_coeff_path,
                                  'crop_pic_path': crop_pic_path,
-                                 'original_size': original_size,
                                  'crop_info': crop_info}
 
             if first_coeff_path is None:
