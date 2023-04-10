@@ -164,7 +164,7 @@ def talking_face_generation():
         generate_3d_face_shapes()
         logger.info(f"Creating video...")
         face_params = face_dict[request.image]
-        batch = get_data(face_params['first_coeff_path'], audio, device)
+        batch = get_data(face_params['first_coeff_path'], audio, device,  ref_eyeblink_coeff_path=None)
         coeff_path = audio_to_coeff.generate(batch, os.path.join(current_root_path, 'result', request.image.split('.')[0]), 0)
         from src.face3d.visualize import gen_composed_video
         gen_composed_video(args, device, face_params['first_coeff_path'], coeff_path, audio, os.path.join(os.path.join(current_root_path, 'result', request.image.split('.')[0]), '3dface.mp4'))
