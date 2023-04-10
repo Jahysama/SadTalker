@@ -60,6 +60,8 @@ def voice_generation():
         tts = gTTS(text=request.text, lang=request.lang, slow=False)
         tts.save("app/SadTalker/examples/driven_audio/voice.wav")
 
+    yield _get_voice
+
 
 @contextlib.contextmanager
 def talking_face_generation():
@@ -182,13 +184,15 @@ def talking_face_generation():
 
 def worker():
         logger.info(f"Got request!")
-        with talking_face_generation() as generate:
+        with talking_face_generation() as generate_face, \
+            voice_generation() as generate_voice:
                 while True:
                         logger.info(f"Processing requests...")
                         response_queue = None
                         try:
                                 (request, response_queue) = request_queue.get()
-                                response = generate(request)
+                                generate_voice(request)
+                                response = generate_face(request)
                                 response_queue.put({'response': response})
                         except KeyboardInterrupt:
                                 logger.info(f"Got KeyboardInterrupt... quitting!")
