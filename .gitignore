@@ -163,3 +163,6 @@ examples/results/*
 gfpgan/*
 checkpoints/
 results/*
+Dockerfile
+start_docker.sh
+start.sh
