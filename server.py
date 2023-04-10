@@ -157,20 +157,20 @@ def talking_face_generation():
                 return
 
     generate_3d_face_shapes()
-
+    audio = '/app/SadTalker/examples/driven_audio/voice.wav'
     def _talking_face(request: CompleteRequest):
 
         global video_path
         generate_3d_face_shapes()
         logger.info(f"Creating video...")
         face_params = face_dict[request.image]
-        batch = get_data(face_params['first_coeff_path'], request.audio, device, refvideo_coeff_path=None)
+        batch = get_data(face_params['first_coeff_path'], audio, device, refvideo_coeff_path=None)
         coeff_path = audio_to_coeff.generate(batch, os.path.join(current_root_path, 'result', request.image.split('.')[0]), 0)
         from src.face3d.visualize import gen_composed_video
-        gen_composed_video(args, device, face_params['first_coeff_path'], coeff_path, request.audio, os.path.join(os.path.join(current_root_path, 'result', request.image.split('.')[0]), '3dface.mp4'))
+        gen_composed_video(args, device, face_params['first_coeff_path'], coeff_path, audio, os.path.join(os.path.join(current_root_path, 'result', request.image.split('.')[0]), '3dface.mp4'))
 
         data = get_facerender_data(coeff_path, face_params['crop_pic_path'], face_params['first_coeff_path'],
-                                request.audio, batch_size=2, camera_yaw_list=[0], camera_pitch_list=[0], camera_roll_list=[0],
+                                audio, batch_size=2, camera_yaw_list=[0], camera_pitch_list=[0], camera_roll_list=[0],
                                expression_scale=1., still_mode=True)
 
         animate_from_coeff.generate(data, os.path.join(current_root_path, 'result', request.image.split('.')[0]), enhancer=None, original_size=original_size)
@@ -192,7 +192,9 @@ def worker():
                         try:
                                 (request, response_queue) = request_queue.get()
                                 generate_voice(request)
+                                logger.info(f"Voice generated!")
                                 response = generate_face(request)
+                                logger.info(f"Video generated!")
                                 response_queue.put({'response': response})
                         except KeyboardInterrupt:
                                 logger.info(f"Got KeyboardInterrupt... quitting!")
@@ -237,7 +239,6 @@ async def create_upload_file(file: UploadFile = File(...)):
 
 
 class CompleteRequest(pydantic.BaseModel):
-    audio: str
     image: str
     text: str
     lang: str
