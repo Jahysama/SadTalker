@@ -140,9 +140,11 @@ def talking_face_generation():
 
     def generate_3d_face_shapes():
         for avatar in os.listdir(avatar_picrutes_path):
+
             save_dir = os.path.join(current_root_path, 'result', avatar.split('.')[0])
             first_frame_dir = os.path.join(save_dir, 'first_frame_dir')
             os.makedirs(first_frame_dir, exist_ok=True)
+            logger.info(f"Avatar: {avatar}; PATH: {os.path.join(avatar_picrutes_path, avatar)}")
             first_coeff_path, crop_pic_path, original_size = preprocess_model.generate(
                 os.path.join(avatar_picrutes_path, avatar),
                 first_frame_dir, 'crop')
@@ -162,7 +164,7 @@ def talking_face_generation():
         generate_3d_face_shapes()
         logger.info(f"Creating video...")
         face_params = face_dict[request.image]
-        batch = get_data(face_params['first_coeff_path'], audio, device, refvideo_coeff_path=None)
+        batch = get_data(face_params['first_coeff_path'], audio, device)
         coeff_path = audio_to_coeff.generate(batch, os.path.join(current_root_path, 'result', request.image.split('.')[0]), 0)
         from src.face3d.visualize import gen_composed_video
         gen_composed_video(args, device, face_params['first_coeff_path'], coeff_path, audio, os.path.join(os.path.join(current_root_path, 'result', request.image.split('.')[0]), '3dface.mp4'))
