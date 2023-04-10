@@ -141,8 +141,6 @@ def talking_face_generation():
     def generate_3d_face_shapes():
         for avatar in os.listdir(avatar_picrutes_path):
             save_dir = os.path.join(current_root_path, 'result', avatar.split('.')[0])
-            if os.path.exists(save_dir):
-                continue
             first_frame_dir = os.path.join(save_dir, 'first_frame_dir')
             os.makedirs(first_frame_dir, exist_ok=True)
             first_coeff_path, crop_pic_path, original_size = preprocess_model.generate(
