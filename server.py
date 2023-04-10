@@ -58,7 +58,7 @@ def voice_generation():
     def _get_voice(request: CompleteRequest):
 
         tts = gTTS(text=request.text, lang=request.lang, slow=False)
-        tts.save("app/SadTalker/examples/driven_audio/voice.wav")
+        tts.save("/app/SadTalker/examples/driven_audio/voice.wav")
 
     yield _get_voice
 
