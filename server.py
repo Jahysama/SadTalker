@@ -56,8 +56,8 @@ def talking_face_generation():
 
         args = Dict2Args(json_path='main_config.json')
 
-        current_code_path = sys.argv[0]
-        current_root_path = os.path.split(current_code_path)[0]
+        current_code_path = '/app/SadTalker/'
+        current_root_path = '/app/SadTalker/'
 
         os.environ['TORCH_HOME']=os.path.join(current_root_path, args.checkpoint_dir)
         logger.info(f"Loading weights...")
@@ -92,7 +92,7 @@ def talking_face_generation():
                                           json_merge=json_config)
             image_id = uuid.uuid4()
             request.image.filename = f"{image_id}.png"
-            save_dir = os.path.join(config.save_dir, image_id)
+            save_dir = os.path.join(current_root_path, config.save_dir, image_id)
             pic_path = os.path.join(save_dir, request.image.filename)
             os.makedirs(save_dir, exist_ok=True)
             contents = await request.image.read()
