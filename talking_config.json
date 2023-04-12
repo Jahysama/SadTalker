@@ -1,0 +1,23 @@
+{
+   "driven_audio": "./examples/driven_audio/RD_Radio31_000.wav",
+   "ref_eyeblink": null,
+   "ref_pose": null,
+   "pose_style": 0,
+   "expression_scale": 1,
+   "input_yaw": [0],
+   "input_pitch": [0],
+   "input_roll": [0],
+   "enhancer": null,
+   "background_enhancer": null,
+   "face3dvis": true,
+   "still": true,
+   "preprocess": "full",
+   "net_recon": "resnet50",
+   "init_path": null,
+   "use_last_fc": false,
+   "focal": 1015.0,
+   "center": 112.0,
+   "camera_d": 10.0,
+   "z_near": 5.0,
+   "z_far": 15.0
+}
