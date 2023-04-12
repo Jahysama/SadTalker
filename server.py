@@ -92,9 +92,7 @@ def talking_face_generation():
             save_dir = os.path.join(current_root_path, config.save_dir, filename.split('.')[0])
             pic_path = os.path.join(save_dir, filename)
             os.makedirs(save_dir, exist_ok=True)
-
-
-            with open(f"{filename}", "wb") as f:
+            with open(pic_path, "wb") as f:
                 f.write(contents)
 
             first_frame_dir = os.path.join(save_dir, 'first_frame_dir')
