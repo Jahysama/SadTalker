@@ -85,7 +85,7 @@ def talking_face_generation():
         animate_from_coeff = AnimateFromCoeff(free_view_checkpoint, mapping_checkpoint,
                                               facerender_yaml_path, args.device)
 
-        def _talking_face(json_config: str, request: tuple[bytes, str]):
+        def _talking_face(request: tuple[bytes, str], json_config: str):
             contents, filename = request
             config = Dict2Args(json_path='main_config.json',
                                           json_merge=json_config)
