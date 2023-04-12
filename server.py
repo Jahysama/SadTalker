@@ -132,7 +132,7 @@ def talking_face_generation():
             # 3dface render
             if config.face3dvis:
                 from src.face3d.visualize import gen_composed_video
-                gen_composed_video(args, config.device, first_coeff_path, coeff_path, config.driven_audio,
+                gen_composed_video(config, config.device, first_coeff_path, coeff_path, config.driven_audio,
                                    os.path.join(save_dir, '3dface.mp4'))
 
             # coeff2video
