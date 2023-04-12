@@ -190,7 +190,7 @@ async def complete(file: UploadFile = File(...)):
     if request_queue.full():
         logger.warning("Request queue full.")
         raise ValueError("Request queue full.")
-    image_id = uuid.uuid4()
+    image_id = str(uuid.uuid4()).replace('-', '')
     file.filename = f"{image_id}.png"
     contents = await file.read()
     response = _enqueue((contents, file.filename))
