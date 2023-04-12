@@ -35,8 +35,7 @@ app.add_middleware(
         )
 
 
-
-def _enqueue(request: UploadFile = File(...)):
+def _enqueue(request: tuple[bytes, str]):
     response_queue = queue.Queue()
     request_queue.put((request, response_queue))
     response = response_queue.get()
@@ -86,15 +85,14 @@ def talking_face_generation():
         animate_from_coeff = AnimateFromCoeff(free_view_checkpoint, mapping_checkpoint,
                                               facerender_yaml_path, args.device)
 
-        async def _talking_face(json_config: str, request: UploadFile = File(...)):
+        def _talking_face(json_config: str, request: tuple[bytes, str]):
+            contents, filename = request
             config = Dict2Args(json_path='main_config.json',
                                           json_merge=json_config)
-            image_id = uuid.uuid4()
-            request.filename = f"{image_id}.png"
-            save_dir = os.path.join(current_root_path, config.save_dir, image_id)
-            pic_path = os.path.join(save_dir, request.filename)
+            save_dir = os.path.join(current_root_path, config.save_dir, filename.split('.')[0])
+            pic_path = os.path.join(save_dir, filename)
             os.makedirs(save_dir, exist_ok=True)
-            contents = await request.read()
+
 
             with open(f"{request.filename}", "wb") as f:
                 f.write(contents)
@@ -189,12 +187,15 @@ def startup():
 
 
 @app.post("/get_talking_head")
-def complete(request: UploadFile = File(...)):
+async def complete(file: UploadFile = File(...)):
     logger.info(f"Received request. Queue size is {request_queue.qsize()}")
     if request_queue.full():
         logger.warning("Request queue full.")
         raise ValueError("Request queue full.")
-    response = _enqueue(request)
+    image_id = uuid.uuid4()
+    file.filename = f"{image_id}.png"
+    contents = await file.read()
+    response = _enqueue((contents, file.filename))
     return response
 
 
