@@ -185,14 +185,14 @@ def startup():
 
 
 @app.post("/get_talking_head")
-async def complete(file: UploadFile = File(...)):
+def complete(file: UploadFile = File(...)):
     logger.info(f"Received request. Queue size is {request_queue.qsize()}")
     if request_queue.full():
         logger.warning("Request queue full.")
         raise ValueError("Request queue full.")
     image_id = str(uuid.uuid4()).replace('-', '')
     file.filename = f"{image_id}.png"
-    contents = await file.read()
+    contents = file.file.read()
     response = _enqueue((contents, file.filename))
     return response
 
