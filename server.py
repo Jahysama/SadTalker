@@ -126,17 +126,17 @@ def talking_face_generation():
                 ref_pose_coeff_path = None
 
             # audio2ceoff
-            batch = get_data(first_coeff_path, config.audio_path, config.device, ref_eyeblink_coeff_path, still=config.still)
+            batch = get_data(first_coeff_path, config.driven_audio, config.device, ref_eyeblink_coeff_path, still=config.still)
             coeff_path = audio_to_coeff.generate(batch, save_dir, config.pose_style, ref_pose_coeff_path)
 
             # 3dface render
             if config.face3dvis:
                 from src.face3d.visualize import gen_composed_video
-                gen_composed_video(args, config.device, first_coeff_path, coeff_path, config.audio_path,
+                gen_composed_video(args, config.device, first_coeff_path, coeff_path, config.driven_audio,
                                    os.path.join(save_dir, '3dface.mp4'))
 
             # coeff2video
-            data = get_facerender_data(coeff_path, crop_pic_path, first_coeff_path, config.audio_path,
+            data = get_facerender_data(coeff_path, crop_pic_path, first_coeff_path, config.driven_audio,
                                        config.batch_size, config.input_yaw_list, config.input_pitch_list,
                                        config.input_roll_list, expression_scale=config.expression_scale,
                                        still_mode=config.still, preprocess=config.preprocess)
@@ -160,7 +160,8 @@ def worker():
                 (request, response_queue) = request_queue.get()
                 video_folder_talking, video_name_talking = \
                     generate_face(request, 'talking_config.json')
-                video_folder_still, video_name_still = generate_face(request, 'still_config.json')
+                video_folder_still, video_name_still = \
+                    generate_face(request, 'still_config.json')
                 logger.info(f"Video generated!")
                 response_queue.put({'talking': FileResponse(os.path.join(video_folder_talking, video_name_still)),
                                     'still': FileResponse(os.path.join(video_folder_still, video_name_still))})
