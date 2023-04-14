@@ -143,7 +143,7 @@ def talking_face_generation():
 
             animate_from_coeff.generate(data, save_dir, pic_path, crop_info, \
                                         enhancer=config.enhancer,
-                                        preprocess=config.preprocess)
+                                        )
             video_name = data['video_name']
             return save_dir, video_name
 
