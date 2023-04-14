@@ -5,7 +5,6 @@ import time
 from loguru import logger
 import contextlib
 
-import pydantic
 
 import shutil
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,6 +14,8 @@ import uuid
 
 import os
 import uvicorn
+
+from src.utils.firebase_binding import upload_gif_to_firebase
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
@@ -52,7 +53,7 @@ def talking_face_generation():
         from src.generate_batch import get_data
         from src.generate_facerender_batch import get_facerender_data
 
-        args = Dict2Args(json_path='main_config.json')
+        args = Dict2Args(json_path='configs/main_config.json')
 
         current_code_path = '/app/SadTalker/'
         current_root_path = '/app/SadTalker/'
@@ -87,8 +88,12 @@ def talking_face_generation():
 
         def _talking_face(request: tuple[bytes, str], json_config: str):
             contents, filename = request
-            config = Dict2Args(json_path='main_config.json',
-                                          json_merge=json_config)
+            if json_config == 'still_config.json':
+                filename += '_still'
+            if json_config == 'talking_config.json':
+                filename += '_talking'
+            config = Dict2Args(json_path='configs/main_config.json',
+                               json_merge=json_config)
             save_dir = os.path.join(current_root_path, config.save_dir, filename.split('.')[0])
             pic_path = os.path.join(save_dir, filename)
             os.makedirs(save_dir, exist_ok=True)
@@ -162,10 +167,13 @@ def worker():
                     generate_face(request, 'talking_config.json')
                 video_folder_still, video_name_still = \
                     generate_face(request, 'still_config.json')
-                logger.info(f"Video generated!")
+                logger.info(f"GIF's generated!")
+                upload_gif_to_firebase(os.path.join(video_folder_talking, video_name_talking))
+                upload_gif_to_firebase(os.path.join(video_folder_still, video_name_still))
                 response_queue.put({'talking': FileResponse(os.path.join(video_folder_talking, video_name_still)),
                                     'still': FileResponse(os.path.join(video_folder_still, video_name_still))})
                 shutil.rmtree(video_folder_talking)
+                shutil.rmtree(video_folder_still)
 
 
             except KeyboardInterrupt:

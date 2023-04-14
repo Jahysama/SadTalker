@@ -22,5 +22,6 @@ fvcore
 iopath
 trimesh
 fastapi
-gTTS
 python-multipart
+google-cloud-firestore
+firebase-admin
