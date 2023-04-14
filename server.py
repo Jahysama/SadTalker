@@ -166,7 +166,7 @@ def worker():
                 response_queue.put({'talking': FileResponse(os.path.join(video_folder_talking, video_name_still)),
                                     'still': FileResponse(os.path.join(video_folder_still, video_name_still))})
                 shutil.rmtree(video_folder_talking)
-                shutil.rmtree(video_folder_still)
+
 
             except KeyboardInterrupt:
                 logger.info(f"Got KeyboardInterrupt... quitting!")
