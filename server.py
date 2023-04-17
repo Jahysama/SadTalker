@@ -45,11 +45,11 @@ class Notification(pydantic.BaseModel):
 
 
 class UserRequest(pydantic.BaseModel):
-    to: Union[int, str]
+    to: str
     notification: Notification
 
 
-def _enqueue(request: tuple[bytes, str, int | str, Notification]):
+def _enqueue(request: tuple[bytes, str, str, str, str]):
     response_queue = queue.Queue()
     request_queue.put((request, response_queue))
     response = response_queue.get()
@@ -99,8 +99,8 @@ def talking_face_generation():
         animate_from_coeff = AnimateFromCoeff(free_view_checkpoint, mapping_checkpoint,
                                               facerender_yaml_path, args.device)
 
-        def _talking_face(request: tuple[bytes, str, int | str, Notification], json_config: str):
-            contents, filename, push_token, notification = request
+        def _talking_face(request: tuple[bytes, str, str, str, str], json_config: str):
+            contents, filename, push_token, body, title = request
             if json_config == 'still_config.json':
                 filename += '_still'
             if json_config == 'talking_config.json':
@@ -163,7 +163,7 @@ def talking_face_generation():
                                         enhancer=config.enhancer,
                                         )
             video_name = data['video_name']
-            return save_dir, video_name, push_token, notification
+            return save_dir, video_name, push_token, body, title
 
         yield _talking_face
 
@@ -178,13 +178,13 @@ def worker():
                 (request, response_queue) = request_queue.get()
                 video_folder_talking, video_name_talking, _, _ = \
                     generate_face(request, 'talking_config.json')
-                video_folder_still, video_name_still, push_token, notification = \
+                video_folder_still, video_name_still, push_token, body, title = \
                     generate_face(request, 'still_config.json')
                 logger.info(f"GIF's generated!")
                 upload_gif_to_firebase(os.path.join(video_folder_talking, video_name_talking))
                 upload_gif_to_firebase(os.path.join(video_folder_still, video_name_still))
 
-                send_notifications(push_token, notification.title, notification.body)
+                send_notifications(push_token, title, body)
                 shutil.rmtree(video_folder_talking)
                 shutil.rmtree(video_folder_still)
 
@@ -214,7 +214,7 @@ def complete(request: UserRequest, file: UploadFile = File(...)):
     image_id = str(uuid.uuid4()).replace('-', '')
     file.filename = f"{image_id}.png"
     contents = file.file.read()
-    response = _enqueue((contents, file.filename, request.to, request.notification))
+    response = _enqueue((contents, file.filename, request.to, request.notification.body, request.notification.title))
     return response
 
 
