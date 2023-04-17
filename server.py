@@ -13,6 +13,7 @@ from fastapi import FastAPI, File, UploadFile, Body
 from fastapi.responses import FileResponse
 import uuid
 from typing import Union
+from typing import Tuple
 
 import os
 import uvicorn
@@ -62,7 +63,7 @@ class UserRequest(Base):
     notification: Notification
 
 
-def _enqueue(request: tuple[bytes, str, str, str, str]):
+def _enqueue(request: Tuple[bytes, str, str, str, str]):
     response_queue = queue.Queue()
     request_queue.put((request, response_queue))
     response = response_queue.get()
@@ -112,7 +113,7 @@ def talking_face_generation():
         animate_from_coeff = AnimateFromCoeff(free_view_checkpoint, mapping_checkpoint,
                                               facerender_yaml_path, args.device)
 
-        def _talking_face(request: tuple[bytes, str, str, str, str], json_config: str):
+        def _talking_face(request: Tuple[bytes, str, str, str, str], json_config: str):
             contents, filename, push_token, body, title = request
             filename = f'{push_token}_{filename}'
             if json_config == 'still_config.json':
