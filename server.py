@@ -190,7 +190,7 @@ def worker():
             response_queue = None
             try:
                 (request, response_queue) = request_queue.get()
-                video_folder_talking, video_name_talking, _, _ = \
+                video_folder_talking, video_name_talking, _, _, _ = \
                     generate_face(request, 'talking_config.json')
                 video_folder_still, video_name_still, push_token, body, title = \
                     generate_face(request, 'still_config.json')
