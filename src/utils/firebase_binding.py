@@ -1,9 +1,9 @@
 import firebase_admin
 from firebase_admin import credentials, firestore, storage, messaging
 from os import path
-from config_loader import Dict2Args
+from .config_loader import Dict2Args
 
-config = Dict2Args('../../configs/firebase_config.json')
+config = Dict2Args('configs/firebase_config.json')
 
 cred = credentials.Certificate(config.credentials)
 firebase_admin.initialize_app(cred, {

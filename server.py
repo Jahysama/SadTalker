@@ -45,7 +45,6 @@ class Notification(pydantic.BaseModel):
 
 
 class UserRequest(pydantic.BaseModel):
-    image: UploadFile = File(...)
     to: Union[int, str]
     notification: Notification
 
@@ -207,9 +206,8 @@ def startup():
 
 
 @app.post("/get_talking_head")
-def complete(request: UserRequest):
+def complete(request: UserRequest, file: UploadFile = File(...)):
     logger.info(f"Received request. Queue size is {request_queue.qsize()}")
-    file = request.image
     if request_queue.full():
         logger.warning("Request queue full.")
         raise ValueError("Request queue full.")
