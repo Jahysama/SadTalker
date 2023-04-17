@@ -14,7 +14,7 @@ bucket = storage.bucket()
 
 
 def upload_gif_to_firebase(gif_path: str):
-    blob = bucket.blob(path.join('personals', path.basename(gif_path)))
+    blob = bucket.blob(path.join('users_avatar', path.basename(gif_path)))
     outfile = gif_path
     blob.upload_from_filename(outfile)
 
