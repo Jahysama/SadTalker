@@ -24,4 +24,5 @@ trimesh
 fastapi
 python-multipart
 google-cloud-firestore
+pydantic
 firebase-admin

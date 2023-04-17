@@ -5,17 +5,20 @@ import time
 from loguru import logger
 import contextlib
 
+import pydantic
 
 import shutil
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import FileResponse
 import uuid
+from typing import Union
 
 import os
 import uvicorn
 
 from src.utils.firebase_binding import upload_gif_to_firebase
+from src.utils.firebase_binding import send_notifications
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
@@ -36,7 +39,18 @@ app.add_middleware(
         )
 
 
-def _enqueue(request: tuple[bytes, str]):
+class Notification(pydantic.BaseModel):
+    body: str
+    title: str
+
+
+class UserRequest(pydantic.BaseModel):
+    image: UploadFile = File(...)
+    to: Union[int, str]
+    notification: Notification
+
+
+def _enqueue(request: tuple[bytes, str, int | str, Notification]):
     response_queue = queue.Queue()
     request_queue.put((request, response_queue))
     response = response_queue.get()
@@ -86,8 +100,8 @@ def talking_face_generation():
         animate_from_coeff = AnimateFromCoeff(free_view_checkpoint, mapping_checkpoint,
                                               facerender_yaml_path, args.device)
 
-        def _talking_face(request: tuple[bytes, str], json_config: str):
-            contents, filename = request
+        def _talking_face(request: tuple[bytes, str, int | str, Notification], json_config: str):
+            contents, filename, push_token, notification = request
             if json_config == 'still_config.json':
                 filename += '_still'
             if json_config == 'talking_config.json':
@@ -102,18 +116,18 @@ def talking_face_generation():
 
             first_frame_dir = os.path.join(save_dir, 'first_frame_dir')
             os.makedirs(first_frame_dir, exist_ok=True)
-            print('3DMM Extraction for source image')
+            logger.info('3DMM Extraction for source image')
             first_coeff_path, crop_pic_path, crop_info = preprocess_model.generate(pic_path, first_frame_dir,
                                                                                    config.preprocess)
             if first_coeff_path is None:
-                print("Can't get the coeffs of the input")
+                logger.info("Can't get the coeffs of the input")
                 return
 
             if config.ref_eyeblink is not None:
                 ref_eyeblink_videoname = os.path.splitext(os.path.split(config.ref_eyeblink)[-1])[0]
                 ref_eyeblink_frame_dir = os.path.join(save_dir, ref_eyeblink_videoname)
                 os.makedirs(ref_eyeblink_frame_dir, exist_ok=True)
-                print('3DMM Extraction for the reference video providing eye blinking')
+                logger.info('3DMM Extraction for the reference video providing eye blinking')
                 ref_eyeblink_coeff_path, _, _ = preprocess_model.generate(config.ref_eyeblink, ref_eyeblink_frame_dir)
             else:
                 ref_eyeblink_coeff_path = None
@@ -125,7 +139,7 @@ def talking_face_generation():
                     ref_pose_videoname = os.path.splitext(os.path.split(config.ref_pose)[-1])[0]
                     ref_pose_frame_dir = os.path.join(save_dir, ref_pose_videoname)
                     os.makedirs(ref_pose_frame_dir, exist_ok=True)
-                    print('3DMM Extraction for the reference video providing pose')
+                    logger.info('3DMM Extraction for the reference video providing pose')
                     ref_pose_coeff_path, _, _ = preprocess_model.generate(config.ref_pose, ref_pose_frame_dir)
             else:
                 ref_pose_coeff_path = None
@@ -150,7 +164,7 @@ def talking_face_generation():
                                         enhancer=config.enhancer,
                                         )
             video_name = data['video_name']
-            return save_dir, video_name
+            return save_dir, video_name, push_token, notification
 
         yield _talking_face
 
@@ -163,18 +177,17 @@ def worker():
             response_queue = None
             try:
                 (request, response_queue) = request_queue.get()
-                video_folder_talking, video_name_talking = \
+                video_folder_talking, video_name_talking, _, _ = \
                     generate_face(request, 'talking_config.json')
-                video_folder_still, video_name_still = \
+                video_folder_still, video_name_still, push_token, notification = \
                     generate_face(request, 'still_config.json')
                 logger.info(f"GIF's generated!")
                 upload_gif_to_firebase(os.path.join(video_folder_talking, video_name_talking))
                 upload_gif_to_firebase(os.path.join(video_folder_still, video_name_still))
-                response_queue.put({'talking': FileResponse(os.path.join(video_folder_talking, video_name_still)),
-                                    'still': FileResponse(os.path.join(video_folder_still, video_name_still))})
+
+                send_notifications(push_token, notification.title, notification.body)
                 shutil.rmtree(video_folder_talking)
                 shutil.rmtree(video_folder_still)
-
 
             except KeyboardInterrupt:
                 logger.info(f"Got KeyboardInterrupt... quitting!")
@@ -194,15 +207,16 @@ def startup():
 
 
 @app.post("/get_talking_head")
-def complete(file: UploadFile = File(...)):
+def complete(request: UserRequest):
     logger.info(f"Received request. Queue size is {request_queue.qsize()}")
+    file = request.image
     if request_queue.full():
         logger.warning("Request queue full.")
         raise ValueError("Request queue full.")
     image_id = str(uuid.uuid4()).replace('-', '')
     file.filename = f"{image_id}.png"
     contents = file.file.read()
-    response = _enqueue((contents, file.filename))
+    response = _enqueue((contents, file.filename, request.to, request.notification))
     return response
 
 

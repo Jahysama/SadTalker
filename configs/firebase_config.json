@@ -1,4 +1,4 @@
 {
-   "credentials": "checkpoint_path",
+   "credentials": "creds_path",
    "storageBucket": "credentials_path"
 }
