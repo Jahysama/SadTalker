@@ -1,5 +1,5 @@
 {
-   "driven_audio": "./examples/driven_audio/RD_Radio31_000.wav",
+   "driven_audio": "./examples/driven_audio/silent.wav",
    "ref_eyeblink": null,
    "ref_pose": null,
    "pose_style": 0,
