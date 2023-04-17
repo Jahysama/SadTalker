@@ -9,13 +9,14 @@ import pydantic
 
 import shutil
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, Body
 from fastapi.responses import FileResponse
 import uuid
 from typing import Union
 
 import os
 import uvicorn
+import json
 
 from src.utils.firebase_binding import upload_gif_to_firebase
 from src.utils.firebase_binding import send_notifications
@@ -39,12 +40,24 @@ app.add_middleware(
         )
 
 
-class Notification(pydantic.BaseModel):
+class Base(pydantic.BaseModel):
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate_to_json
+
+    @classmethod
+    def validate_to_json(cls, value):
+        if isinstance(value, str):
+            return cls(**json.loads(value))
+        return value
+
+
+class Notification(Base):
     body: str
     title: str
 
 
-class UserRequest(pydantic.BaseModel):
+class UserRequest(Base):
     to: str
     notification: Notification
 
@@ -106,7 +119,7 @@ def talking_face_generation():
             if json_config == 'talking_config.json':
                 filename += '_talking'
             config = Dict2Args(json_path='configs/main_config.json',
-                               json_merge=json_config)
+                               json_merge=os.path.join('configs', json_config))
             save_dir = os.path.join(current_root_path, config.save_dir, filename.split('.')[0])
             pic_path = os.path.join(save_dir, filename)
             os.makedirs(save_dir, exist_ok=True)
@@ -206,7 +219,7 @@ def startup():
 
 
 @app.post("/get_talking_head")
-def complete(request: UserRequest, file: UploadFile = File(...)):
+def complete(request: UserRequest = Body(...), file: UploadFile = File(...)):
     logger.info(f"Received request. Queue size is {request_queue.qsize()}")
     if request_queue.full():
         logger.warning("Request queue full.")
@@ -214,7 +227,7 @@ def complete(request: UserRequest, file: UploadFile = File(...)):
     image_id = str(uuid.uuid4()).replace('-', '')
     file.filename = f"{image_id}.png"
     contents = file.file.read()
-    response = _enqueue((contents, file.filename, request.to, request.notification.body, request.notification.title))
+    response = _enqueue((contents, file.filename, request.to, request.notification['body'], request.notification['title']))
     return response
 
 
