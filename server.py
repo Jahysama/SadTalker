@@ -162,12 +162,6 @@ def talking_face_generation():
             batch = get_data(first_coeff_path, config.driven_audio, config.device, ref_eyeblink_coeff_path, still=config.still)
             coeff_path = audio_to_coeff.generate(batch, save_dir, config.pose_style, ref_pose_coeff_path)
 
-            # 3dface render
-            if config.face3dvis:
-                from src.face3d.visualize import gen_composed_video
-                gen_composed_video(config, config.device, first_coeff_path, coeff_path, config.driven_audio,
-                                   os.path.join(save_dir, '3dface.mp4'))
-
             # coeff2video
             data = get_facerender_data(coeff_path, crop_pic_path, first_coeff_path, config.driven_audio,
                                        config.batch_size, config.input_yaw_list, config.input_pitch_list,
