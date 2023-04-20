@@ -196,7 +196,7 @@ def worker():
 
                 send_notifications(push_token, title, body)
                 shutil.rmtree(video_folder_talking)
-                shutil.rmtree(video_folder_still)
+                #shutil.rmtree(video_folder_still)
 
             except KeyboardInterrupt:
                 logger.info(f"Got KeyboardInterrupt... quitting!")
