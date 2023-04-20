@@ -171,7 +171,8 @@ def talking_face_generation():
             animate_from_coeff.generate(data, save_dir, pic_path, crop_info, \
                                         enhancer=config.enhancer,
                                         )
-            video_name = data['video_name']
+            video_name = f'{filename}##{os.path.splitext(config.driven_audio)[0]}_full.gif'
+
             return save_dir, video_name, push_token, body, title
 
         yield _talking_face
