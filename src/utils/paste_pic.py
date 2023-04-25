@@ -35,7 +35,6 @@ def paste_pic(video_path, pic_path, crop_info, new_audio_path, full_video_path):
         oy1, oy2, ox1, ox2 = cly, cry, clx, crx
 
 
-    tmp_path = str(uuid.uuid4())+'.gif'
     #out_tmp = cv2.VideoWriter(tmp_path, cv2.VideoWriter_fourcc(*'gif'), fps, (frame_w, frame_h))
     image_lst = []
     for crop_frame in tqdm(crop_frames, 'seamlessClone:'):
@@ -47,4 +46,3 @@ def paste_pic(video_path, pic_path, crop_info, new_audio_path, full_video_path):
         image_lst.append(gen_img)
     imageio.mimsave(full_video_path, image_lst, fps=fps)
 
-    os.remove(tmp_path)
