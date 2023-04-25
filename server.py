@@ -170,7 +170,7 @@ def talking_face_generation():
                                        still_mode=config.still, preprocess=config.preprocess)
 
             animate_from_coeff.generate(data, save_dir, pic_path, crop_info, \
-                                        enhancer=config.enhancer,
+                                        enhancer=config.enhancer, preprocess=config.preprocess
                                         )
             video_name = f'{filename.split(".")[0]}##{os.path.splitext(os.path.basename(config.driven_audio))[0]}_full.gif'
 
