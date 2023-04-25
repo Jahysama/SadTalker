@@ -9,6 +9,7 @@ warnings.filterwarnings('ignore')
 
 import imageio
 import torch
+import torchvision
 
 from src.facerender.modules.keypoint_detector import HEEstimator, KPDetector
 from src.facerender.modules.mapping import MappingNet
@@ -18,6 +19,7 @@ from src.facerender.modules.make_animation import make_animation
 from pydub import AudioSegment
 from src.utils.face_enhancer import enhancer as face_enhancer
 from src.utils.paste_pic import paste_pic
+from src.utils.videoio import save_video_with_watermark
 
 
 class AnimateFromCoeff():
@@ -116,7 +118,8 @@ class AnimateFromCoeff():
 
         return checkpoint['epoch']
 
-    def generate(self, x, video_save_dir, pic_path, crop_info, enhancer=None, full_img_enhancer=None):
+    def generate(self, x, video_save_dir, pic_path, crop_info, enhancer=None, background_enhancer=None,
+                 preprocess='crop'):
 
         source_image = x['source_image'].type(torch.FloatTensor)
         source_semantics = x['source_semantics'].type(torch.FloatTensor)
@@ -164,19 +167,8 @@ class AnimateFromCoeff():
 
         video_name = x['video_name'] + '.gif'
         path = os.path.join(video_save_dir, 'temp_' + video_name)
+
         imageio.mimsave(path, result, fps=float(25))
-
-        if enhancer:
-            video_name_enhancer = x['video_name'] + '_enhanced.gif'
-            av_path_enhancer = os.path.join(video_save_dir, video_name_enhancer)
-            enhanced_path = os.path.join(video_save_dir, 'temp_' + video_name_enhancer)
-            enhanced_images = face_enhancer(result, method=enhancer)
-
-            if original_size:
-                enhanced_images = [cv2.resize(result_i, (256, int(256.0 * original_size[1] / original_size[0]))) for
-                                   result_i in enhanced_images]
-
-            imageio.mimsave(enhanced_path, enhanced_images, fps=float(25))
 
         av_path = os.path.join(video_save_dir, video_name)
         return_path = av_path
@@ -192,28 +184,35 @@ class AnimateFromCoeff():
         word = word1[start_time:end_time]
         word.export(new_audio_path, format="wav")
 
-        cmd = r'ffmpeg -filter_complex "scale=w=480:h=-1:flags=lanczos -y -i "%s" -vcodec copy "%s"' % (path, av_path)
-        os.system(cmd)
+        save_video_with_watermark(path, new_audio_path, av_path, watermark=False)
         print(f'The generated video is named {video_name} in {video_save_dir}')
 
-        if enhancer:
-            return_path = av_path_enhancer
-            cmd = r'ffmpeg -filter_complex "scale=w=480:h=-1:flags=lanczos -y -i "%s" -vcodec copy "%s"' % (enhanced_path, av_path_enhancer)
-            os.system(cmd)
-            os.remove(enhanced_path)
-            print(f'The generated video is named {video_name_enhancer} in {video_save_dir}')
-
-        if len(crop_info) == 3:
+        if preprocess.lower() == 'full':
+            # only add watermark to the full image.
             video_name_full = x['video_name'] + '_full.gif'
             full_video_path = os.path.join(video_save_dir, video_name_full)
             return_path = full_video_path
-            if enhancer:
-                paste_pic(av_path_enhancer, pic_path, crop_info, new_audio_path, full_video_path)
-            else:
-                paste_pic(path, pic_path, crop_info, new_audio_path, full_video_path)
-            print(f'The generated video is named {video_name_full} in {video_save_dir}')
+            paste_pic(path, pic_path, crop_info, new_audio_path, full_video_path)
+            print(f'The generated video is named {video_save_dir}/{video_name_full}')
+        else:
+            full_video_path = av_path
+
+            #### paste back then enhancers
+        if enhancer:
+            video_name_enhancer = x['video_name'] + '_enhanced.gif'
+            enhanced_path = os.path.join(video_save_dir, 'temp_' + video_name_enhancer)
+            av_path_enhancer = os.path.join(video_save_dir, video_name_enhancer)
+            return_path = av_path_enhancer
+            enhanced_images = face_enhancer(full_video_path, method=enhancer, bg_upsampler=background_enhancer)
+
+            imageio.mimsave(enhanced_path, enhanced_images, fps=float(25))
+
+            save_video_with_watermark(enhanced_path, new_audio_path, av_path_enhancer, watermark=False)
+            print(f'The generated video is named {video_save_dir}/{video_name_enhancer}')
+            os.remove(enhanced_path)
 
         os.remove(path)
         os.remove(new_audio_path)
 
         return return_path
+
