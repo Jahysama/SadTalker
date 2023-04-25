@@ -1,6 +1,6 @@
 {
    "driven_audio": "./examples/driven_audio/silent.wav",
-   "ref_eyeblink": null,
+   "ref_eyeblink": "./examples/ref_video/WDA_AlexandriaOcasioCortez_000.mp4",
    "ref_pose": null,
    "pose_style": 0,
    "expression_scale": 0.1,
