@@ -17,7 +17,7 @@ def load_video_to_cv2(input_path):
         full_frames.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
     return full_frames
 
-def save_video_with_watermark(video, audio, save_path, watermark='docs/sadtalker_logo.png'):
+def save_video_with_watermark(video, audio, save_path, watermark=None):
     temp_file = str(uuid.uuid4())+'.mp4'
     cmd = r'ffmpeg -y -i "%s" -i "%s" -vcodec copy "%s"' % (video, audio, temp_file)
     os.system(cmd)

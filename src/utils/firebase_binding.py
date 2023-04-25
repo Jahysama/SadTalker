@@ -21,14 +21,27 @@ def upload_gif_to_firebase(gif_path: str):
 
 def send_notifications(push_token: str, push_title: str, push_text: str):
 
+    alert = messaging.ApsAlert(title=push_title, body=push_text)
+    aps = messaging.Aps(alert=alert, sound="default")
+    payload = messaging.APNSPayload(aps)
+
     message = messaging.Message(
+
         data={
             "click_action": "FLUTTER_NOTIFICATION_CLICK",
             "title": push_title,
             "body": push_text,
             "type": "avatar_done"
         },
+
+        notification=messaging.Notification(
+            title=push_title,
+            body=push_text
+        ),
+
+        apns=messaging.APNSConfig(payload=payload),
         token=push_token,
     )
+
     messaging.send(message)
 
