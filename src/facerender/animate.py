@@ -192,13 +192,13 @@ class AnimateFromCoeff():
         word = word1[start_time:end_time]
         word.export(new_audio_path, format="wav")
 
-        cmd = r'ffmpeg -y -i "%s" -vcodec copy "%s"' % (path, av_path)
+        cmd = r'ffmpeg -filter_complex "scale=w=480:h=-1:flags=lanczos -y -i "%s" -vcodec copy "%s"' % (path, av_path)
         os.system(cmd)
         print(f'The generated video is named {video_name} in {video_save_dir}')
 
         if enhancer:
             return_path = av_path_enhancer
-            cmd = r'ffmpeg -y -i "%s" -vcodec copy "%s"' % (enhanced_path, av_path_enhancer)
+            cmd = r'ffmpeg -filter_complex "scale=w=480:h=-1:flags=lanczos -y -i "%s" -vcodec copy "%s"' % (enhanced_path, av_path_enhancer)
             os.system(cmd)
             os.remove(enhanced_path)
             print(f'The generated video is named {video_name_enhancer} in {video_save_dir}')
