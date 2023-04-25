@@ -1,6 +1,6 @@
 {
    "checkpoint_dir": "checkpoints",
-   "device": "cpu",
+   "device": "cuda",
    "preprocess": "full",
    "save_dir": "results",
    "bfm_folder": "checkpoints/BFM_Fitting/",
