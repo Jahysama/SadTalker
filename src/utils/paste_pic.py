@@ -1,4 +1,5 @@
 import cv2, os
+import imageio
 import numpy as np
 from tqdm import tqdm
 import uuid
@@ -35,16 +36,15 @@ def paste_pic(video_path, pic_path, crop_info, new_audio_path, full_video_path):
 
 
     tmp_path = str(uuid.uuid4())+'.gif'
-    out_tmp = cv2.VideoWriter(tmp_path, cv2.VideoWriter_fourcc(*'gif'), fps, (frame_w, frame_h))
+    #out_tmp = cv2.VideoWriter(tmp_path, cv2.VideoWriter_fourcc(*'gif'), fps, (frame_w, frame_h))
+    image_lst = []
     for crop_frame in tqdm(crop_frames, 'seamlessClone:'):
         p = cv2.resize(crop_frame.astype(np.uint8), (crx-clx, cry - cly)) 
 
         mask = 255*np.ones(p.shape, p.dtype)
         location = ((ox1+ox2) // 2, (oy1+oy2) // 2)
         gen_img = cv2.seamlessClone(p, full_img, mask, location, cv2.NORMAL_CLONE)
-        out_tmp.write(gen_img)
+        image_lst.append(gen_img)
+    imageio.mimsave(full_video_path, image_lst, fps=fps)
 
-    out_tmp.release()
-
-    save_video_with_watermark(tmp_path, new_audio_path, full_video_path)
     os.remove(tmp_path)

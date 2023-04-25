@@ -165,7 +165,7 @@ class AnimateFromCoeff():
             result = [cv2.resize(result_i, (256, int(256.0 * original_size[1] / original_size[0]))) for result_i in
                       result]
 
-        video_name = x['video_name'] + '.gif'
+        video_name = x['video_name'] + '.mp4'
         path = os.path.join(video_save_dir, 'temp_' + video_name)
 
         imageio.mimsave(path, result, fps=float(25))
