@@ -116,11 +116,11 @@ def talking_face_generation():
 
         def _talking_face(request: Tuple[bytes, str, str, str, str, str], json_config: str):
             contents, filename, push_token, user_id, body, title = request
-            filename = f'{user_id}##{filename}'
+            filename = f'{user_id}##{os.path.splitext(filename)[0]}'
             if json_config == 'still_config.json':
-                filename += '_still'
+                filename += '_still.png'
             if json_config == 'talking_config.json':
-                filename += '_talking'
+                filename += '_talking.png'
             config = Dict2Args(json_path='configs/main_config.json',
                                json_merge=os.path.join('configs', json_config))
             save_dir = os.path.join(current_root_path, config.save_dir, filename.split('.')[0])
@@ -197,7 +197,7 @@ def worker():
 
                 send_notifications(push_token, title, body)
                 shutil.rmtree(video_folder_talking)
-                #shutil.rmtree(video_folder_still)
+                shutil.rmtree(video_folder_still)
 
             except KeyboardInterrupt:
                 logger.info(f"Got KeyboardInterrupt... quitting!")

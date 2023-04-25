@@ -18,5 +18,5 @@ def load_video_to_cv2(input_path):
     return full_frames
 
 def save_video_with_watermark(video, audio, save_path, watermark=None):
-    cmd = r'ffmpeg -filter_complex "scale=w=480:h=-1:flags=lanczos -y -i "%s" -i "%s" -vcodec copy "%s"' % (video, audio, save_path)
+    cmd = r'ffmpeg -y -i "%s" -i "%s" -vcodec copy "%s"' % (video, audio, save_path)
     os.system(cmd)
