@@ -76,6 +76,7 @@ def talking_face_generation():
         import os, sys
         from src.utils.preprocess import CropAndExtract
         from src.utils.config_loader import Dict2Args
+        from src.utils.resize_image import resize_image
         from src.test_audio2coeff import Audio2Coeff
         from src.facerender.animate import AnimateFromCoeff
         from src.generate_batch import get_data
@@ -121,6 +122,7 @@ def talking_face_generation():
                 filename += '_still.png'
             if json_config == 'talking_config.json':
                 filename += '_talking.png'
+
             config = Dict2Args(json_path='configs/main_config.json',
                                json_merge=os.path.join('configs', json_config))
             save_dir = os.path.join(current_root_path, config.save_dir, filename.split('.')[0])
@@ -128,6 +130,7 @@ def talking_face_generation():
             os.makedirs(save_dir, exist_ok=True)
             with open(pic_path, "wb") as f:
                 f.write(contents)
+            resize_image(pic_path)
 
             first_frame_dir = os.path.join(save_dir, 'first_frame_dir')
             os.makedirs(first_frame_dir, exist_ok=True)

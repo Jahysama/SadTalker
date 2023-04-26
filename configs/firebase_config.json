@@ -1,4 +1,5 @@
 {
    "credentials": "creds_path",
-   "storageBucket": "credentials_path"
+   "storageBucket": "credentials_path",
+   "server_key": "serverkey"
 }
