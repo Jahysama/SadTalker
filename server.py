@@ -178,7 +178,7 @@ def talking_face_generation():
                                         )
             video_name = f'{filename.split(".")[0]}##{os.path.splitext(os.path.basename(config.driven_audio))[0]}_full.gif'
             new_video_name = f'{filename.split(".")[0]}.gif'
-            os.rename(video_name, new_video_name)
+            os.rename(os.path.join(save_dir, video_name), os.path.join(new_video_name))
 
             return save_dir, new_video_name, push_token, body, title
 
