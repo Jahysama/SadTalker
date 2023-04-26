@@ -40,7 +40,7 @@ def send_notifications(push_token: str, push_title: str, push_text: str):
             "click_action": "FLUTTER_NOTIFICATION_CLICK",
             "title": push_title,
             "body": push_text,
-            "type": "show"
+            "type": "avatar_done"
         }
     }
     response = requests.post("https://fcm.googleapis.com/fcm/send", headers=headers, data=json.dumps(body))

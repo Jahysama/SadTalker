@@ -61,6 +61,7 @@ class Notification(Base):
 class UserRequest(Base):
     to: str
     user_id: str
+    avatar_name: str
     notification: Notification
 
 
@@ -119,9 +120,9 @@ def talking_face_generation():
             contents, filename, push_token, user_id, body, title = request
             filename = f'{user_id}##{os.path.splitext(filename)[0]}'
             if json_config == 'still_config.json':
-                filename += '_still.png'
+                filename += '##still.png'
             if json_config == 'talking_config.json':
-                filename += '_talking.png'
+                filename += '##talking.png'
 
             config = Dict2Args(json_path='configs/main_config.json',
                                json_merge=os.path.join('configs', json_config))
@@ -176,8 +177,10 @@ def talking_face_generation():
                                         enhancer=config.enhancer, preprocess=config.preprocess
                                         )
             video_name = f'{filename.split(".")[0]}##{os.path.splitext(os.path.basename(config.driven_audio))[0]}_full.gif'
+            new_video_name = f'{filename.split(".")[0]}.gif'
+            os.rename(video_name, new_video_name)
 
-            return save_dir, video_name, push_token, body, title
+            return save_dir, new_video_name, push_token, body, title
 
         yield _talking_face
 
@@ -225,10 +228,11 @@ def complete(request: UserRequest = Body(...), file: UploadFile = File(...)):
     if request_queue.full():
         logger.warning("Request queue full.")
         raise ValueError("Request queue full.")
-    image_id = str(uuid.uuid4()).replace('-', '')
+    image_id = request.avatar_name
     file.filename = f"{image_id}.png"
     contents = file.file.read()
-    response = _enqueue((contents, file.filename, request.to, request.user_id, request.notification['body'], request.notification['title']))
+    response = _enqueue((contents, file.filename, request.to, request.user_id,
+                         request.notification['body'], request.notification['title']))
     return response
 
 
