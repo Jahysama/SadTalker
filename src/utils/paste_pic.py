@@ -44,5 +44,6 @@ def paste_pic(video_path, pic_path, crop_info, new_audio_path, full_video_path):
         location = ((ox1+ox2) // 2, (oy1+oy2) // 2)
         gen_img = cv2.seamlessClone(p, full_img, mask, location, cv2.NORMAL_CLONE)
         image_lst.append(gen_img[:, :, [2, 1, 0]])
-    imageio.mimsave(full_video_path, image_lst, fps=fps)
+    image_lst = image_lst[4 - 1::4]
+    imageio.mimsave(full_video_path, image_lst, fps=int(fps/4))
 
