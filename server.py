@@ -238,6 +238,9 @@ def complete(request: UserRequest = Body(...), file: UploadFile = File(...)):
     contents = file.file.read()
     response = _enqueue((contents, file.filename, request.to, request.user_id,
                          request.notification['body'], request.notification['title']))
+    response_queue = None
+    (request, response_queue) = request_queue.get()
+    response_queue.put({'response': f'{file.filename} uploaded'})
     return {"response": response}
 
 
