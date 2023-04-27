@@ -204,6 +204,9 @@ def worker():
                 send_notifications(push_token, title, body)
                 shutil.rmtree(video_folder_talking)
                 shutil.rmtree(video_folder_still)
+                response_queue.put({'response': 'success',
+                                    'video_name_still': video_name_still,
+                                    'video_name_talking': video_name_talking})
 
             except KeyboardInterrupt:
                 logger.info(f"Got KeyboardInterrupt... quitting!")
@@ -211,7 +214,9 @@ def worker():
             except Exception:
                 logger.exception(f"Got exception, will continue")
                 if response_queue is not None:
-                    response_queue.put("")
+                    response_queue.put({'response': 'Got exception, will continue',
+                                        'video_name_still': video_name_still,
+                                        'video_name_talking': video_name_talking})
 
 
 @app.on_event("startup")
@@ -233,7 +238,7 @@ def complete(request: UserRequest = Body(...), file: UploadFile = File(...)):
     contents = file.file.read()
     response = _enqueue((contents, file.filename, request.to, request.user_id,
                          request.notification['body'], request.notification['title']))
-    return response
+    return {"response": response}
 
 
 if __name__ == '__main__':
